@@ -194,3 +194,32 @@ kbd {
   cursor: pointer;
 }
 .back:hover { background: #b4aee3; }
+
+.jarscene { height: 252px; background: #c9bfec; }
+.jarwrap { position: absolute; left: 54px; top: 8px; width: 192px; height: 240px; }
+.jlayer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.jlayer.front { z-index: 3; }
+.inside {
+  position: absolute;
+  left: 26px;
+  top: 48px;
+  width: 140px;
+  height: 170px;
+  z-index: 2;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+}
+.inside::-webkit-scrollbar { width: 6px; }
+.inside::-webkit-scrollbar-track { background: transparent; }
+.inside::-webkit-scrollbar-thumb { background: #b4aee3; border: 1px solid #23235f; }
+.pile { flex: none; margin-top: auto; display: flex; flex-wrap: wrap-reverse; justify-content: center; padding: 0 4px 2px; }
+.jstar { position: relative; width: 34px; height: 32px; margin: -2px; padding: 0; border: none; background: none; cursor: pointer; }
+.jstar img { display: block; width: 100%; height: 100%; }
+.jstar:hover { filter: brightness(1.15); }
+.jstar.sel { transform: translateY(-4px); filter: brightness(1.2); }
+
+.left { display: flex; align-items: center; gap: 8px; }
+.badge { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; font-weight: 700; }

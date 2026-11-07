@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { sounds, isSoundOn, setSound } from './sounds.js'
+import { getWords } from './store.js'
+import Jar from './Jar.jsx'
 
 const CODES = 'af sq am ar hy as ay az bm eu be bn bho bs bg ca ceb zh-Hans zh-Hant co hr cs da dv doi nl en eo et ee fil fi fr fy gl ka de el gn gu ht ha haw he hi hmn hu is ig ilo id ga it ja jv kn kk km rw gom ko kri ku ckb ky lo la lv ln lt lg lb mk mai mg ms ml mt mi mr mni-Mtei lus mn my ne no or om ps fa pl pt pa qu ro ru sm sa gd nso sr st sn sd si sk sl so es su sw sv tg ta tt te th ti ts tr tk ak uk ur ug uz vi cy xh yi yo zu'.split(' ')
 
@@ -52,6 +54,21 @@ function Gear() {
   )
 }
 
+function Arrow() {
+  const rows = ['...X.....', '..XX.....', '.XXXXXXXX', 'XXXXXXXXX', '.XXXXXXXX', '..XX.....', '...X.....']
+  const cells = []
+  rows.forEach((r, y) => {
+    r.split('').forEach((ch, x) => {
+      if (ch === 'X') cells.push(<rect key={x + '-' + y} x={x} y={y} width="1" height="1" />)
+    })
+  })
+  return (
+    <svg viewBox="0 0 9 7" width="9" height="7" shapeRendering="crispEdges" fill="currentColor">
+      {cells}
+    </svg>
+  )
+}
+
 function Keys({ k }) {
   return (
     <span className="keys">
@@ -62,13 +79,14 @@ function Keys({ k }) {
 
 export default function App() {
   const langs = useMemo(buildLanguages, [])
+  const [view, setView] = useState('home')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [from, setFrom] = useState(() => localStorage.getItem('from') || 'auto')
   const [to, setTo] = useState(() => localStorage.getItem('to') || 'en')
   const [soundOn, setSoundOn] = useState(isSoundOn())
   const [blink, setBlink] = useState(false)
   const [result, setResult] = useState(null)
-  const starCount = 7
+  const starCount = getWords().length
 
   useEffect(() => {
     localStorage.setItem('from', from)
@@ -112,90 +130,109 @@ export default function App() {
   }
   const openJar = () => {
     sounds.jar()
-    setResult({ word: '', meaning: 'The jar opens in the next step!', example: '' })
+    setSettingsOpen(false)
+    setView('jar')
+  }
+  const backToJudy = () => {
+    sounds.tab()
+    setView('home')
   }
 
   return (
     <div className="window">
       <div className="titlebar">
-        <span className="title">judy.exe</span>
+        <div className="left">
+          {view === 'jar' ? (
+            <div className="btns">
+              <button title="Back to Judy" onClick={backToJudy}><Arrow /></button>
+            </div>
+          ) : null}
+          <span className="title">{view === 'jar' ? 'star jar' : 'judy.exe'}</span>
+        </div>
         <div className="btns">
-          <button className={settingsOpen ? 'on' : ''} title="Settings" onClick={toggleSettings}><Gear /></button>
+          {view === 'home' ? (
+            <button className={settingsOpen ? 'on' : ''} title="Settings" onClick={toggleSettings}><Gear /></button>
+          ) : null}
           <button title="Minimize" onClick={() => window.judy.minimize()}>_</button>
           <button title="Close" onClick={() => window.judy.close()}>x</button>
         </div>
       </div>
 
-      <div className="langbar">
-        <select title="Translate from" value={from} onChange={(e) => { sounds.pop(); setFrom(e.target.value) }}>
-          <option value="auto">Auto-detect</option>
-          {langs.map((l) => (
-            <option key={l.code} value={l.code}>{l.name}</option>
-          ))}
-        </select>
-        <button className="swap" onClick={swap} disabled={from === 'auto'} title="Swap languages">
-          {'\u21C4'}
-        </button>
-        <select title="Translate to" value={to} onChange={(e) => { sounds.pop(); setTo(e.target.value) }}>
-          {langs.map((l) => (
-            <option key={l.code} value={l.code}>{l.name}</option>
-          ))}
-        </select>
-      </div>
-
-      {settingsOpen ? (
-        <div className="settings">
-          <div className="sec">
-            <div className="sec-title">shortcuts</div>
-            <div className="row"><span>translate a word</span><Keys k={['Ctrl', 'Shift', 'J']} /></div>
-            <div className="row"><span>read from image</span><Keys k={['Ctrl', 'Shift', 'K']} /></div>
-          </div>
-
-          <div className="sec">
-            <div className="row">
-              <span>sound</span>
-              <button className={soundOn ? 'toggle on' : 'toggle'} onClick={toggleSound}>
-                {soundOn ? 'on' : 'off'}
-              </button>
-            </div>
-          </div>
-
-          <button className="back" onClick={toggleSettings}>back to Judy</button>
-        </div>
+      {view === 'jar' ? (
+        <Jar />
       ) : (
         <>
-          <div className="scene">
-            <div className="layer sky" />
-            <div className="layer clouds" />
-            <div className="layer sparkA" />
-            <div className="layer sparkB" />
-            <img
-              className="cat"
-              src={blink ? '/assets/mascot_blink.png' : '/assets/mascot_idle.png'}
-              alt="Judy"
-              onClick={touchJudy}
-            />
-            <button className="jarhold" title="Open the jar" onClick={openJar}>
-              <img src="/assets/jar_full.png" alt="jar" />
-              <span className="badge">{starCount}</span>
+          <div className="langbar">
+            <select title="Translate from" value={from} onChange={(e) => { sounds.pop(); setFrom(e.target.value) }}>
+              <option value="auto">Auto-detect</option>
+              {langs.map((l) => (
+                <option key={l.code} value={l.code}>{l.name}</option>
+              ))}
+            </select>
+            <button className="swap" onClick={swap} disabled={from === 'auto'} title="Swap languages">
+              {'\u21C4'}
             </button>
+            <select title="Translate to" value={to} onChange={(e) => { sounds.pop(); setTo(e.target.value) }}>
+              {langs.map((l) => (
+                <option key={l.code} value={l.code}>{l.name}</option>
+              ))}
+            </select>
           </div>
 
-          <div className="bubble">
-            <img className="bubble-star" src="/assets/star5.png" alt="" />
-            {result ? (
-              <div className="result">
-                {result.word ? <div className="word">{result.word}</div> : null}
-                <div className="meaning">{result.meaning}</div>
-                {result.example ? <div className="example">{result.example}</div> : null}
+          {settingsOpen ? (
+            <div className="settings">
+              <div className="sec">
+                <div className="sec-title">shortcuts</div>
+                <div className="row"><span>translate a word</span><Keys k={['Ctrl', 'Shift', 'J']} /></div>
+                <div className="row"><span>read from image</span><Keys k={['Ctrl', 'Shift', 'K']} /></div>
               </div>
-            ) : (
-              <div className="hint">Select a word and press Ctrl+Shift+J</div>
-            )}
-          </div>
+
+              <div className="sec">
+                <div className="row">
+                  <span>sound</span>
+                  <button className={soundOn ? 'toggle on' : 'toggle'} onClick={toggleSound}>
+                    {soundOn ? 'on' : 'off'}
+                  </button>
+                </div>
+              </div>
+
+              <button className="back" onClick={toggleSettings}>back to Judy</button>
+            </div>
+          ) : (
+            <>
+              <div className="scene">
+                <div className="layer sky" />
+                <div className="layer clouds" />
+                <div className="layer sparkA" />
+                <div className="layer sparkB" />
+                <img
+                  className="cat"
+                  src={blink ? '/assets/mascot_blink.png' : '/assets/mascot_idle.png'}
+                  alt="Judy"
+                  onClick={touchJudy}
+                />
+                <button className="jarhold" title="Open the jar" onClick={openJar}>
+                  <img src="/assets/jar_full.png" alt="jar" />
+                  <span className="badge">{starCount}</span>
+                </button>
+              </div>
+
+              <div className="bubble">
+                <img className="bubble-star" src="/assets/star5.png" alt="" />
+                {result ? (
+                  <div className="result">
+                    {result.word ? <div className="word">{result.word}</div> : null}
+                    <div className="meaning">{result.meaning}</div>
+                    {result.example ? <div className="example">{result.example}</div> : null}
+                  </div>
+                ) : (
+                  <div className="hint">Select a word and press Ctrl+Shift+J</div>
+                )}
+              </div>
+            </>
+          )}
         </>
       )}
     </div>
   )
 }
-
