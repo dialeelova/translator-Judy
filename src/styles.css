@@ -223,3 +223,15 @@ kbd {
 
 .left { display: flex; align-items: center; gap: 8px; }
 .badge { font-family: 'Segoe UI', Arial, sans-serif; font-size: 13px; font-weight: 700; }
+
+.bubble { flex: none; height: 88px; min-height: 0; overflow: hidden; }
+.result { min-width: 0; width: 100%; }
+.meaning.big { font-size: 22px; }
+.meaning.mid { font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.meaning.long { font-size: 15px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+
+.result { margin: auto 0; max-height: 100%; overflow-y: auto; padding-right: 2px; }
+.result::-webkit-scrollbar { width: 6px; }
+.result::-webkit-scrollbar-track { background: #f0eafa; }
+.result::-webkit-scrollbar-thumb { background: #b4aee3; border: 1px solid #23235f; }
+.meaning.long { display: block; -webkit-line-clamp: unset; overflow: visible; }

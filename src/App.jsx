@@ -108,6 +108,118 @@ export default function App() {
     return () => clearTimeout(t)
   }, [])
 
+  useEffect(() => {
+    const BACK = { 'zh-CN': 'zh-Hans', 'zh-TW': 'zh-Hant', tl: 'fil', iw: 'he', jw: 'jv' }
+    const nameOf = (code) => {
+      const c = BACK[code] || code
+      const hit = langs.find((l) => l.code === c)
+      return hit ? hit.name : String(code).toUpperCase()
+    }
+    return window.judy.onCaptured(async (p) => {
+      setSettingsOpen(false)
+      setView('home')
+      if (p.status === 'busy') {
+        sounds.pop()
+        setResult({ word: '', meaning: 'Waking up... try again!', example: '', size: 'long' })
+        return
+      }
+      if (p.status === 'empty') {
+        sounds.pop()
+        setResult({ word: '', meaning: 'Nothing selected!', example: '', size: 'long' })
+        return
+      }
+      sounds.star()
+      const text = p.text.slice(0, 300)
+      const fromCode = localStorage.getItem('from') || 'auto'
+      const toCode = localStorage.getItem('to') || 'en'
+      setResult({ word: '', meaning: '...', example: '', size: 'big' })
+      const r = await window.judy.translate(text, fromCode, toCode)
+      if (!r || !r.ok) {
+        setResult({ word: '', meaning: 'Could not translate. Check your internet!', example: '', size: 'long' })
+        return
+      }
+      const srcCode = BACK[r.src] || r.src
+      if ((fromCode === 'auto' ? srcCode : fromCode) === toCode) {
+        setResult({ word: '', meaning: 'Same language! Change the "to" language at the top.', example: '', size: 'long' })
+        return
+      }
+      const single = text.split(/\s+/).length <= 2 && text.length <= 24
+      let meaning = r.full
+      if (single && r.meanings.length) {
+        meaning = ''
+        for (const m of r.meanings) {
+          const next = meaning ? meaning + ', ' + m : m
+          if (meaning && next.length > 26) break
+          meaning = next
+        }
+      }
+      let size = 'big'
+      if (!single || meaning.length > 26) size = 'long'
+      else if (meaning.length > 14) size = 'mid'
+      setResult({
+        word: single ? text + (r.pos ? ' - ' + r.pos : '') : '',
+        meaning: meaning,
+        example: single ? nameOf(srcCode) + ' to ' + nameOf(toCode) : '',
+        size: size
+      })
+    })
+  }, [])
+  useEffect(() => {
+    const BACK = { 'zh-CN': 'zh-Hans', 'zh-TW': 'zh-Hant', tl: 'fil', iw: 'he', jw: 'jv' }
+    const nameOf = (code) => {
+      const c = BACK[code] || code
+      const hit = langs.find((l) => l.code === c)
+      return hit ? hit.name : String(code).toUpperCase()
+    }
+    return window.judy.onCaptured(async (p) => {
+      setSettingsOpen(false)
+      setView('home')
+      if (p.status === 'busy') {
+        sounds.pop()
+        setResult({ word: '', meaning: 'Waking up... try again!', example: '', size: 'long' })
+        return
+      }
+      if (p.status === 'empty') {
+        sounds.pop()
+        setResult({ word: '', meaning: 'Nothing selected!', example: '', size: 'long' })
+        return
+      }
+      sounds.star()
+      const text = p.text.slice(0, 300)
+      const fromCode = localStorage.getItem('from') || 'auto'
+      const toCode = localStorage.getItem('to') || 'en'
+      setResult({ word: '', meaning: '...', example: '', size: 'big' })
+      const r = await window.judy.translate(text, fromCode, toCode)
+      if (!r || !r.ok) {
+        setResult({ word: '', meaning: 'Could not translate. Check your internet!', example: '', size: 'long' })
+        return
+      }
+      const srcCode = BACK[r.src] || r.src
+      if ((fromCode === 'auto' ? srcCode : fromCode) === toCode) {
+        setResult({ word: '', meaning: 'Same language! Change the "to" language at the top.', example: '', size: 'long' })
+        return
+      }
+      const single = text.split(/\s+/).length <= 2 && text.length <= 24
+      let meaning = r.full
+      if (single && r.meanings.length) {
+        meaning = ''
+        for (const m of r.meanings) {
+          const next = meaning ? meaning + ', ' + m : m
+          if (meaning && next.length > 26) break
+          meaning = next
+        }
+      }
+      let size = 'big'
+      if (!single || meaning.length > 26) size = 'long'
+      else if (meaning.length > 14) size = 'mid'
+      setResult({
+        word: single ? text + (r.pos ? ' - ' + r.pos : '') : '',
+        meaning: meaning,
+        example: single ? nameOf(srcCode) + ' to ' + nameOf(toCode) : '',
+        size: size
+      })
+    })
+  }, [])
   const toggleSettings = () => {
     sounds.tab()
     setSettingsOpen((v) => !v)
@@ -220,9 +332,9 @@ export default function App() {
               <div className="bubble">
                 <img className="bubble-star" src="/assets/star5.png" alt="" />
                 {result ? (
-                  <div className="result">
+                  <div className="result" key={result.word + result.meaning}>
                     {result.word ? <div className="word">{result.word}</div> : null}
-                    <div className="meaning">{result.meaning}</div>
+                    <div className={'meaning ' + (result.size || 'big')}>{result.meaning}</div>
                     {result.example ? <div className="example">{result.example}</div> : null}
                   </div>
                 ) : (
@@ -236,3 +348,7 @@ export default function App() {
     </div>
   )
 }
+
+
+
+
