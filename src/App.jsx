@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { sounds, isSoundOn, setSound } from './sounds.js'
-import { getWords } from './store.js'
+import { getWords, addWord, hasWord } from './store.js'
 import Jar from './Jar.jsx'
 
 const CODES = 'af sq am ar hy as ay az bm eu be bn bho bs bg ca ceb zh-Hans zh-Hant co hr cs da dv doi nl en eo et ee fil fi fr fy gl ka de el gn gu ht ha haw he hi hmn hu is ig ilo id ga it ja jv kn kk km rw gom ko kri ku ckb ky lo la lv ln lt lg lb mk mai mg ms ml mt mi mr mni-Mtei lus mn my ne no or om ps fa pl pt pa qu ro ru sm sa gd nso sr st sn sd si sk sl so es su sw sv tg ta tt te th ti ts tr tk ak uk ur ug uz vi cy xh yi yo zu'.split(' ')
@@ -64,6 +64,21 @@ function Arrow() {
   })
   return (
     <svg viewBox="0 0 9 7" width="9" height="7" shapeRendering="crispEdges" fill="currentColor">
+      {cells}
+    </svg>
+  )
+}
+
+function Check() {
+  const rows = ['.......X.', '......XX.', '.....XX..', 'X...XX...', 'XX.XX....', '.XXX.....', '..X......']
+  const cells = []
+  rows.forEach((r, y) => {
+    r.split('').forEach((ch, x) => {
+      if (ch === 'X') cells.push(<rect key={x + '-' + y} x={x} y={y} width="1" height="1" />)
+    })
+  })
+  return (
+    <svg viewBox="0 0 9 7" width="18" height="14" shapeRendering="crispEdges" fill="currentColor">
       {cells}
     </svg>
   )
@@ -160,7 +175,13 @@ export default function App() {
         word: single ? text + (r.pos ? ' - ' + r.pos : '') : '',
         meaning: meaning,
         example: single ? nameOf(srcCode) + ' to ' + nameOf(toCode) : '',
-        size: size
+        size: size,
+        saveable: single,
+        raw: text,
+        from: fromCode,
+        to: toCode,
+        color: (getWords().length % 7) + 1,
+        saved: single ? hasWord(text, toCode) : false
       })
     })
   }, [])
@@ -216,10 +237,31 @@ export default function App() {
         word: single ? text + (r.pos ? ' - ' + r.pos : '') : '',
         meaning: meaning,
         example: single ? nameOf(srcCode) + ' to ' + nameOf(toCode) : '',
-        size: size
+        size: size,
+        saveable: single,
+        raw: text,
+        from: fromCode,
+        to: toCode,
+        color: (getWords().length % 7) + 1,
+        saved: single ? hasWord(text, toCode) : false
       })
     })
   }, [])
+  const saveStar = () => {
+    if (!result || !result.saveable || result.saved) return
+    const out = addWord({
+      word: result.raw,
+      meaning: result.meaning,
+      example: result.example,
+      color: result.color,
+      from: result.from,
+      to: result.to
+    })
+    if (out.added) sounds.save()
+    else sounds.pop()
+    setResult({ ...result, saved: true })
+  }
+
   const toggleSettings = () => {
     sounds.tab()
     setSettingsOpen((v) => !v)
@@ -331,6 +373,11 @@ export default function App() {
 
               <div className="bubble">
                 <img className="bubble-star" src="/assets/star5.png" alt="" />
+            {result && result.saveable ? (
+              <button className={result.saved ? 'savebtn saved' : 'savebtn'} title={result.saved ? 'In your jar' : 'Save to the jar'} onClick={saveStar}>
+                {result.saved ? <Check /> : <img src={'/assets/star' + result.color + '.png'} alt="" />}
+              </button>
+            ) : null}
                 {result ? (
                   <div className="result" key={result.word + result.meaning}>
                     {result.word ? <div className="word">{result.word}</div> : null}
@@ -348,6 +395,7 @@ export default function App() {
     </div>
   )
 }
+
 
 
 

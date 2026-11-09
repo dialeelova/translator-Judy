@@ -40,6 +40,8 @@ export function setSound(on) {
 export const sounds = {
   tab() { if (enabled) tone(660, 0, 0.12, 'triangle', 0.05) },
   pop() { if (enabled) { tone(440, 0, 0.09, 'sine', 0.06); tone(660, 0.05, 0.12, 'sine', 0.05) } },
+  save() { if (enabled) { bell(659.25, 0, 0.06); bell(987.77, 0.09, 0.06); bell(1318.5, 0.18, 0.04) } },
   jar() { if (enabled) { bell(523.25, 0, 0.07); bell(783.99, 0.1, 0.06); bell(1046.5, 0.2, 0.04) } },
   star() { if (enabled) bell(NOTES[Math.floor(Math.random() * NOTES.length)], 0, 0.06) }
 }
+

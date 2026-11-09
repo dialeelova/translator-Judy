@@ -235,3 +235,20 @@ kbd {
 .result::-webkit-scrollbar-track { background: #f0eafa; }
 .result::-webkit-scrollbar-thumb { background: #b4aee3; border: 1px solid #23235f; }
 .meaning.long { display: block; -webkit-line-clamp: unset; overflow: visible; }
+
+.savebtn {
+  position: absolute; right: 6px; top: 6px; z-index: 2;
+  width: 28px; height: 28px; padding: 0;
+  display: grid; place-items: center;
+  border: 2px solid #23235f; background: #fff;
+  box-shadow: 2px 2px 0 #b4aee3;
+  color: #23235f; cursor: pointer;
+}
+.savebtn img { display: block; width: 20px; image-rendering: auto; }
+.savebtn:hover { background: #e4dcf3; }
+.savebtn:active { transform: translate(1px, 1px); }
+.savebtn.saved { background: #b4aee3; cursor: default; }
+.savebtn ~ .result { padding-right: 34px; }
+
+.savebtn.sure { width: 54px; background: #ffd9e6; font: 700 13px 'Pixelify Sans', monospace; }
+.savebtn.sure ~ .result { padding-right: 60px; }
