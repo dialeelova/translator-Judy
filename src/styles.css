@@ -252,3 +252,19 @@ kbd {
 
 .savebtn.sure { width: 54px; background: #ffd9e6; font: 700 13px 'Pixelify Sans', monospace; }
 .savebtn.sure ~ .result { padding-right: 60px; }
+
+.meaning, .example { font-family: 'Nunito', system-ui, 'Segoe UI', sans-serif; font-weight: 800; }
+.example { font-weight: 600; }
+
+.meaning { letter-spacing: 0; }
+.meaning.big { font-size: 20px; }
+.meaning.mid { font-size: 16px; }
+
+.meaning.mid, .meaning.long { white-space: normal; overflow: visible; text-overflow: clip; display: block; -webkit-line-clamp: unset; line-height: 1.25; word-break: break-word; }
+
+.hint { line-height: 1.5; }
+.hint b { color: #5b55ad; font-weight: 700; }
+
+.hint b { margin-right: 8px; }
+
+.hint b { margin-right: 8px; }

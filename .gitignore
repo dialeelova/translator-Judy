@@ -3,3 +3,9 @@ dist
 release
 .env
 *.log
+
+node_modules
+dist
+release
+.env
+*.bak

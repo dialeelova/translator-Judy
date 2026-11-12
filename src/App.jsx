@@ -138,66 +138,9 @@ export default function App() {
         setResult({ word: '', meaning: 'Waking up... try again!', example: '', size: 'long' })
         return
       }
-      if (p.status === 'empty') {
+      if (p.status === 'nolang') {
         sounds.pop()
-        setResult({ word: '', meaning: 'Nothing selected!', example: '', size: 'long' })
-        return
-      }
-      sounds.star()
-      const text = p.text.slice(0, 300)
-      const fromCode = localStorage.getItem('from') || 'auto'
-      const toCode = localStorage.getItem('to') || 'en'
-      setResult({ word: '', meaning: '...', example: '', size: 'big' })
-      const r = await window.judy.translate(text, fromCode, toCode)
-      if (!r || !r.ok) {
-        setResult({ word: '', meaning: 'Could not translate. Check your internet!', example: '', size: 'long' })
-        return
-      }
-      const srcCode = BACK[r.src] || r.src
-      if ((fromCode === 'auto' ? srcCode : fromCode) === toCode) {
-        setResult({ word: '', meaning: 'Same language! Change the "to" language at the top.', example: '', size: 'long' })
-        return
-      }
-      const single = text.split(/\s+/).length <= 2 && text.length <= 24
-      let meaning = r.full
-      if (single && r.meanings.length) {
-        meaning = ''
-        for (const m of r.meanings) {
-          const next = meaning ? meaning + ', ' + m : m
-          if (meaning && next.length > 26) break
-          meaning = next
-        }
-      }
-      let size = 'big'
-      if (!single || meaning.length > 26) size = 'long'
-      else if (meaning.length > 14) size = 'mid'
-      setResult({
-        word: single ? text + (r.pos ? ' - ' + r.pos : '') : '',
-        meaning: meaning,
-        example: single ? nameOf(srcCode) + ' to ' + nameOf(toCode) : '',
-        size: size,
-        saveable: single,
-        raw: text,
-        from: fromCode,
-        to: toCode,
-        color: (getWords().length % 7) + 1,
-        saved: single ? hasWord(text, toCode) : false
-      })
-    })
-  }, [])
-  useEffect(() => {
-    const BACK = { 'zh-CN': 'zh-Hans', 'zh-TW': 'zh-Hant', tl: 'fil', iw: 'he', jw: 'jv' }
-    const nameOf = (code) => {
-      const c = BACK[code] || code
-      const hit = langs.find((l) => l.code === c)
-      return hit ? hit.name : String(code).toUpperCase()
-    }
-    return window.judy.onCaptured(async (p) => {
-      setSettingsOpen(false)
-      setView('home')
-      if (p.status === 'busy') {
-        sounds.pop()
-        setResult({ word: '', meaning: 'Waking up... try again!', example: '', size: 'long' })
+        setResult({ word: '', meaning: p.reason === 'auto' ? 'Pick the language of the text in "from" first!' : "Image reading isn't available for this language.", example: '', size: 'long' })
         return
       }
       if (p.status === 'empty') {
@@ -236,7 +179,7 @@ export default function App() {
       setResult({
         word: single ? text + (r.pos ? ' - ' + r.pos : '') : '',
         meaning: meaning,
-        example: single ? nameOf(srcCode) + ' to ' + nameOf(toCode) : '',
+        example: '',
         size: size,
         saveable: single,
         raw: text,
@@ -385,7 +328,7 @@ export default function App() {
                     {result.example ? <div className="example">{result.example}</div> : null}
                   </div>
                 ) : (
-                  <div className="hint">Select a word and press Ctrl+Shift+J</div>
+                  <div className="hint"><b>Ctrl+Shift+J</b> select text<br /><b>Ctrl+Shift+K</b> select image</div>
                 )}
               </div>
             </>
@@ -395,6 +338,8 @@ export default function App() {
     </div>
   )
 }
+
+
 
 
 

@@ -1,0 +1,34 @@
+<!doctype html>
+<meta charset="utf-8">
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; cursor: crosshair; user-select: none; background: #000; }
+  #bg { position: fixed; inset: 0; background-size: 100% 100%; }
+  #dim { position: fixed; inset: 0; background: rgba(35,35,95,.45); }
+  #box { position: fixed; display: none; border: 2px solid #fff; outline: 2px solid #23235f; box-shadow: 0 0 0 9999px rgba(35,35,95,.45); }
+  #tip { position: fixed; top: 14px; left: 50%; transform: translateX(-50%); font: 700 14px 'Segoe UI', sans-serif; background: #fff; color: #23235f; padding: 6px 12px; border: 2px solid #23235f; }
+</style>
+<div id="bg"></div><div id="dim"></div><div id="box"></div>
+<div id="tip">Drag around the text - Esc to cancel</div>
+<script>
+  let sx = 0, sy = 0, drag = false
+  const box = document.getElementById('box')
+  const rect = (e) => ({ x: Math.min(sx, e.clientX), y: Math.min(sy, e.clientY), w: Math.abs(e.clientX - sx), h: Math.abs(e.clientY - sy) })
+  const draw = (e) => { const r = rect(e); box.style.left = r.x + 'px'; box.style.top = r.y + 'px'; box.style.width = r.w + 'px'; box.style.height = r.h + 'px' }
+  window.snip.onImage((url) => { document.getElementById('bg').style.backgroundImage = 'url(' + url + ')' })
+  addEventListener('mousedown', (e) => {
+    if (e.button !== 0) { window.snip.done(null); return }
+    drag = true; sx = e.clientX; sy = e.clientY
+    document.getElementById('dim').style.display = 'none'
+    document.getElementById('tip').style.display = 'none'
+    box.style.display = 'block'; draw(e)
+  })
+  addEventListener('mousemove', (e) => { if (drag) draw(e) })
+  addEventListener('mouseup', (e) => {
+    if (!drag) return
+    drag = false
+    const r = rect(e)
+    window.snip.done(r.w > 5 && r.h > 5 ? { x: r.x, y: r.y, w: r.w, h: r.h, vw: innerWidth, vh: innerHeight } : null)
+  })
+  addEventListener('keydown', (e) => { if (e.key === 'Escape') window.snip.done(null) })
+</script>
+

@@ -236,3 +236,130 @@ app.on('window-all-closed', () => app.quit())
 
 
 
+
+// ---- OCR snip (Ctrl+Shift+K) ----
+const { desktopCapturer, screen } = require('electron')
+const { createWorker } = require('tesseract.js')
+
+const SNIP_SHORTCUT = 'CommandOrControl+Shift+K'
+const OCR_LANGS = 'eng'
+let snipping = false
+let ocrWorker = null
+
+function pickRegion(display, thumb) {
+  return new Promise((resolve) => {
+    const ov = new BrowserWindow({
+      x: display.bounds.x, y: display.bounds.y,
+      width: display.bounds.width, height: display.bounds.height,
+      frame: false, resizable: false, movable: false, skipTaskbar: true, alwaysOnTop: true, hasShadow: false,
+      webPreferences: { preload: path.join(__dirname, 'snip-preload.js') }
+    })
+    ov.setAlwaysOnTop(true, 'screen-saver')
+    let finished = false
+    const onDone = (e, r) => finish(r)
+    const finish = (r) => {
+      if (finished) return
+      finished = true
+      ipcMain.removeListener('snip:done', onDone)
+      if (!ov.isDestroyed()) ov.close()
+      resolve(r)
+    }
+    ipcMain.on('snip:done', onDone)
+    ov.on('closed', () => finish(null))
+    ov.loadFile(path.join(__dirname, 'snip.html'))
+    ov.webContents.once('did-finish-load', () => {
+      ov.webContents.send('snip:image', thumb.toDataURL())
+      ov.focus()
+    })
+  })
+}
+
+async function readTextOld(img) {
+  if (!ocrWorker) ocrWorker = await createWorker(OCR_LANGS, 1, { cachePath: app.getPath('userData') })
+  await ocrWorker.setParameters({ tessedit_pageseg_mode: '6' })
+  const { data } = await ocrWorker.recognize(img.toPNG())
+  return (data.text || '').replace(/\s+/g, ' ').trim()
+}
+
+async function onSnip() {
+  if (snipping || busy) return
+  snipping = true
+  try {
+    if (win) { try { ocrLang = (await win.webContents.executeJavaScript("localStorage.getItem('from')")) || 'auto' } catch (e) {} }
+    if (!toOcr(ocrLang)) {
+      if (win) { popUp(); win.webContents.send('captured', { status: 'nolang', reason: (!ocrLang || ocrLang === 'auto') ? 'auto' : 'unsupported', text: '' }) }
+      return
+    }
+    const display = screen.getDisplayNearestPoint(screen.getCursorScreenPoint())
+    const sf = display.scaleFactor
+    if (win) win.setOpacity(0)
+    await sleep(150)
+    const sources = await desktopCapturer.getSources({
+      types: ['screen'],
+      thumbnailSize: { width: Math.round(display.bounds.width * sf), height: Math.round(display.bounds.height * sf) }
+    })
+    if (win) win.setOpacity(1)
+    const src = sources.find((s) => s.display_id === String(display.id)) || sources[0]
+    if (!src) return
+    const r = await pickRegion(display, src.thumbnail)
+    if (!r) return
+    const ts = src.thumbnail.getSize()
+    const kx = ts.width / (r.vw || display.bounds.width), ky = ts.height / (r.vh || display.bounds.height)
+    let img = src.thumbnail.crop({ x: Math.max(0, Math.round(r.x * kx)), y: Math.max(0, Math.round(r.y * ky)), width: Math.max(1, Math.round(r.w * kx)), height: Math.max(1, Math.round(r.h * ky)) })
+    const size = img.getSize()
+    const f = Math.max(2, Math.min(4, Math.ceil(1000 / size.width))); img = img.resize({ width: size.width * f, height: size.height * f, quality: 'best' })
+    
+    const text = await readText(img)
+    console.log('OCR length:', text.length)
+    if (win) {
+      popUp()
+      win.webContents.send('captured', { status: text ? 'ok' : 'empty', text })
+    }
+  } catch (e) {
+    console.log('Snip failed:', e.message)
+    if (win) win.setOpacity(1)
+  } finally {
+    snipping = false
+  }
+}
+
+app.whenReady().then(() => {
+  console.log('Snip shortcut registered:', globalShortcut.register(SNIP_SHORTCUT, onSnip))
+})
+app.on('will-quit', () => { if (ocrWorker) ocrWorker.terminate() })
+
+
+
+
+
+const LANG_MAP = {
+  af:'afr', am:'amh', ar:'ara', as:'asm', az:'aze', be:'bel', bg:'bul', bn:'ben', bs:'bos', ca:'cat', ceb:'ceb',
+  cs:'ces', cy:'cym', da:'dan', de:'deu', el:'ell', en:'eng', eo:'epo', es:'spa', et:'est', eu:'eus', fa:'fas',
+  fi:'fin', fr:'fra', ga:'gle', gl:'glg', gu:'guj', he:'heb', iw:'heb', hi:'hin', hr:'hrv', ht:'hat', hu:'hun',
+  id:'ind', is:'isl', it:'ita', ja:'jpn', jv:'jav', ka:'kat', kk:'kaz', km:'khm', kn:'kan', ko:'kor', ku:'kur',
+  ky:'kir', la:'lat', lo:'lao', lt:'lit', lv:'lav', mk:'mkd', ml:'mal', mn:'mon', mr:'mar', ms:'msa', mt:'mlt',
+  my:'mya', ne:'nep', nl:'nld', no:'nor', or:'ori', pa:'pan', pl:'pol', ps:'pus', pt:'por', ro:'ron', ru:'rus',
+  sa:'san', si:'sin', sk:'slk', sl:'slv', sq:'sqi', sr:'srp', sv:'swe', sw:'swa', ta:'tam', te:'tel', tg:'tgk',
+  th:'tha', ti:'tir', tr:'tur', ug:'uig', uk:'ukr', ur:'urd', uz:'uzb', vi:'vie', yi:'yid',
+  'zh-CN':'chi_sim', 'zh-Hans':'chi_sim', 'zh-TW':'chi_tra', 'zh-Hant':'chi_tra'
+}
+let ocrLang = 'auto'
+let ocrLoaded = ''
+const BEST = 'https://tessdata.projectnaptha.com/4.0.0_best'
+const toOcr = (c) => (!c || c === 'auto') ? null : (LANG_MAP[c] || null)
+
+async function readText(img) {
+  const want = toOcr(ocrLang)
+  if (!ocrWorker || ocrLoaded !== want) {
+    if (ocrWorker) await ocrWorker.terminate()
+    ocrWorker = await createWorker(want, 1, { cachePath: path.join(app.getPath('userData'), 'ocr-fast') })
+    await ocrWorker.setParameters({ tessedit_pageseg_mode: '6' })
+    ocrLoaded = want
+  }
+  const { data } = await ocrWorker.recognize(img.toPNG())
+  return (data.text || '').replace(/\s+/g, ' ').trim()
+}
+
+
+
+
