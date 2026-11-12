@@ -177,11 +177,12 @@ function createWindow() {
     width: 330,
     height: 420,
     frame: false,
+    icon: path.join(__dirname, '..', 'build', 'icon.png'),
     resizable: false,
     backgroundColor: '#c9d2ee',
     webPreferences: { preload: path.join(__dirname, 'preload.js') }
   })
-  win.loadURL('http://127.0.0.1:5173')
+  if (app.isPackaged) win.loadFile(path.join(__dirname, '..', 'dist', 'index.html')); else win.loadURL('http://127.0.0.1:5173')
   win.on('closed', () => { win = null })
 }
 
@@ -359,6 +360,8 @@ async function readText(img) {
   const { data } = await ocrWorker.recognize(img.toPNG())
   return (data.text || '').replace(/\s+/g, ' ').trim()
 }
+
+
 
 
 

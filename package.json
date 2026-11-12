@@ -1,38 +1,65 @@
 {
-  "name": "word-jar",
-  "version": "1.0.0",
-  "description": "",
-  "main": "electron/main.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev:vite": "vite",
-    "dev:electron": "wait-on tcp:127.0.0.1:5173 && electron .",
-    "dev": "concurrently -k npm:dev:vite npm:dev:electron"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/dialeelova/translator-Judy.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/dialeelova/translator-Judy/issues"
-  },
-  "homepage": "https://github.com/dialeelova/translator-Judy#readme",
-  "dependencies": {
-    "@fontsource/nunito": "^5.3.0",
-    "@fontsource/pixelify-sans": "^5.3.0",
-    "react": "^19.3.1",
-    "react-dom": "^19.3.1",
-    "tesseract.js": "^7.0.0"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-react": "^6.2.1",
-    "concurrently": "^10.0.6",
-    "electron": "^45.2.3",
-    "vite": "^8.3.6",
-    "wait-on": "^9.5.1"
-  }
+    "name":  "word-jar",
+    "version":  "1.0.0",
+    "description":  "",
+    "main":  "electron/main.js",
+    "scripts":  {
+                    "test":  "echo \"Error: no test specified\" \u0026\u0026 exit 1",
+                    "dev:vite":  "vite",
+                    "dev:electron":  "wait-on tcp:127.0.0.1:5173 \u0026\u0026 electron .",
+                    "dev":  "concurrently -k npm:dev:vite npm:dev:electron",
+                    "dist":  "vite build --base=./ \u0026\u0026 electron-builder --win portable"
+                },
+    "repository":  {
+                       "type":  "git",
+                       "url":  "git+https://github.com/dialeelova/translator-Judy.git"
+                   },
+    "keywords":  [
+
+                 ],
+    "author":  "",
+    "license":  "ISC",
+    "type":  "commonjs",
+    "bugs":  {
+                 "url":  "https://github.com/dialeelova/translator-Judy/issues"
+             },
+    "homepage":  "https://github.com/dialeelova/translator-Judy#readme",
+    "dependencies":  {
+                         "@fontsource/nunito":  "^5.3.0",
+                         "@fontsource/pixelify-sans":  "^5.3.0",
+                         "react":  "^19.3.1",
+                         "react-dom":  "^19.3.1",
+                         "tesseract.js":  "^7.0.0"
+                     },
+    "devDependencies":  {
+                            "@vitejs/plugin-react":  "^6.2.1",
+                            "concurrently":  "^10.0.6",
+                            "electron":  "^45.2.3",
+                            "electron-builder":  "^26.18.0",
+                            "vite":  "^8.3.6",
+                            "wait-on":  "^9.5.1"
+                        },
+    "build":  {
+                  "directories":  {
+                                      "output":  "release"
+                                  },
+                  "asarUnpack":  [
+                                     "node_modules/tesseract.js/**",
+                                     "node_modules/tesseract.js-core/**"
+                                 ],
+                  "files":  [
+                                "dist/**",
+                                "electron/**",
+                                "build/icon.png",
+                                "package.json"
+                            ],
+                  "productName":  "Judy",
+                  "win":  {
+                              "artifactName":  "Judy-${version}.exe",
+                              "target":  "portable",
+                              "signExecutable":  false,
+                              "icon":  "build/icon.ico"
+                          },
+                  "appId":  "com.dialeelova.judy"
+              }
 }
