@@ -1,4 +1,4 @@
-# Judy
+# Judy the Translator
 
 <p align="center"><img src="docs/judy-jar.jpg" width="560" alt="Judy and the origami star jar that inspired it"></p>
 
