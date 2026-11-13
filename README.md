@@ -1,14 +1,14 @@
-# Judy
-
-<p align="center"><img src="docs/judy-jar.jpg" width="560" alt="Judy and the origami star jar that inspired it"></p>
+# Judy 🐱
 
 A cute pixel desktop translator. Select text in any app, press a shortcut, and Judy shows the translation right away. Words worth remembering can be saved as stars in a jar.
 
-## Why Judy
+## Why Judy ✨
 
 No more switching to Google, Google Translate or asking GPT every time an unknown word shows up. The translation appears right where the word is, and saved words stay in the jar for reviewing later.
 
-The jar idea comes from the origami lucky star jars from Japan: a word and its translation are written down, folded into a paper star and dropped into a jar. Judy does the same, digitally.
+The jar idea comes from the origami lucky star jars from Japan: a word and its translation are written down, folded into a paper star and dropped into a jar. Judy does the same, digitally. 🫙⭐
+
+<p align="center"><img src="docs/judy-jar.jpg" width="400" alt="Judy and the origami star jar that inspired it"></p>
 
 ## Download
 
@@ -27,7 +27,7 @@ If Windows shows "Windows protected your PC", click **More info**, then **Run an
 2. Select a word, or drag a box, and press the shortcut.
 3. Press the star to save the word in the jar. Open the jar to browse, review or delete saved words.
 
-## Languages
+## Languages 🌍
 
 - **Selected text:** about 130 languages, including Auto-detect.
 - **Image scan:** about 90 languages. Pick the language of the text in "from" first, because Auto-detect does not work for images.
