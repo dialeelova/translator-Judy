@@ -1,6 +1,6 @@
 # Judy the Translator
 
-<p align="center"><img src="docs/judy-jar.jpg" width="560" alt="Judy and the origami star jar that inspired it"></p>
+<p align="center"><img src="docs/judy-jar.jpg" width="500" alt="Judy and the origami star jar that inspired it"></p>
 
 A cute pixel desktop translator. Select text in any app, press a shortcut, and Judy shows the translation right away. Words worth remembering can be saved as stars in a jar.
 
