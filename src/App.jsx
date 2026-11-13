@@ -304,21 +304,21 @@ export default function App() {
                 <div className="layer sparkB" />
                 <img
                   className="cat"
-                  src={blink ? '/assets/mascot_blink.png' : '/assets/mascot_idle.png'}
+                  src={blink ? './assets/mascot_blink.png' : './assets/mascot_idle.png'}
                   alt="Judy"
                   onClick={touchJudy}
                 />
                 <button className="jarhold" title="Open the jar" onClick={openJar}>
-                  <img src="/assets/jar_full.png" alt="jar" />
+                  <img src="./assets/jar_full.png" alt="jar" />
                   <span className="badge">{starCount}</span>
                 </button>
               </div>
 
               <div className="bubble">
-                <img className="bubble-star" src="/assets/star5.png" alt="" />
+                <img className="bubble-star" src="./assets/star5.png" alt="" />
             {result && result.saveable ? (
               <button className={result.saved ? 'savebtn saved' : 'savebtn'} title={result.saved ? 'In your jar' : 'Save to the jar'} onClick={saveStar}>
-                {result.saved ? <Check /> : <img src={'/assets/star' + result.color + '.png'} alt="" />}
+                {result.saved ? <Check /> : <img src={'./assets/star' + result.color + '.png'} alt="" />}
               </button>
             ) : null}
                 {result ? (
@@ -338,6 +338,7 @@ export default function App() {
     </div>
   )
 }
+
 
 
 

@@ -60,7 +60,7 @@ export default function Jar() {
         <div className="layer sparkA" />
         <div className="layer sparkB" />
         <div className="jarwrap">
-          <img className="jlayer" src="/assets/jar_back.png" alt="" />
+          <img className="jlayer" src="./assets/jar_back.png" alt="" />
           <div className="inside">
             <div className="pile">
               {words.map((w, i) => (
@@ -71,17 +71,17 @@ export default function Jar() {
                   title={w.word}
                   onClick={() => pick(i)}
                 >
-                  <img src={'/assets/jstar' + w.color + '.png'} alt={w.word} />
+                  <img src={'./assets/jstar' + w.color + '.png'} alt={w.word} />
                 </button>
               ))}
             </div>
           </div>
-          <img className="jlayer front" src="/assets/jar_front.png" alt="" />
+          <img className="jlayer front" src="./assets/jar_front.png" alt="" />
         </div>
       </div>
 
       <div className="bubble">
-        <img className="bubble-star" src="/assets/star5.png" alt="" />
+        <img className="bubble-star" src="./assets/star5.png" alt="" />
         {item ? (
           <button
             className={sure ? 'savebtn del sure' : 'savebtn del'}
@@ -106,3 +106,4 @@ export default function Jar() {
     </>
   )
 }
+

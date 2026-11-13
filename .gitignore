@@ -9,3 +9,6 @@ dist
 release
 .env
 *.bak
+
+*.zip
+*.exe
